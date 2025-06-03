@@ -1,8 +1,8 @@
 <?php
 
 include ("connection.php");
-$Email1 ="";
-$EmailErr="";
+
+$EmailErr= $Email2="";
 
 
 
@@ -18,25 +18,37 @@ function clean_inputs($field)
 }
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
- $Email = clean_inputs($_POST["Email"]);
+
+ $Email2 = clean_inputs($_POST["Email2"]);
+ $password = clean_inputs($_POST["password"]);
 
  $isValid = true;
 
  
-  if (!preg_match("/^[a-zA-Z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/", $Email)) {
+  if (!preg_match("/^[a-zA-Z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/", $Email2)) {
     $EmailErr = "Invalid Email format";
     $isValid = false;
-    $Email1= $_POST["Email"];
+    $Email2= $_POST["Email2"];
   }
 
 
 
 
- if ($isValid){
-
  
- header("location:http://localhost/vivek/todo.php");
- }}
+ if ($isValid) {
+    $ins = $conn->prepare("INSERT INTO `login` (`Email2`, `password`) VALUES (?, ?) ");
+    $ins->bind_param("ss", $Email2,$password);
+    $ins->execute();
+    $ins->close();
+    $lastId = $conn->insert_id;
+
+
+  header("location:http://localhost/vivek/todo.php?id={$lastId}");
+   exit;
+ 
+ }
+
+  }
 ?>
 
 
@@ -82,9 +94,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 }
 
   </style>
-  <div class="container mt-4 bg-dark" >
-  <div class="card mb-3 bg-dark">
-    <div class="row g-0 d-flex align-items-center">
+<div class="container mt-5"><h2>Valethi employee login</h2></div>
+
+  <div class="container mt-5 bg-dark " >
+  <div class="card mb-3 bg-dark ">
+    <div class="row g-0 d-flex align-items-center ">
       <div class="col-lg-4 d-none d-lg-flex">
         <img src="val.jfif" alt="valethi Technologies"
           class="w-70 rounded-t-5 rounded-tr-lg-0 rounded-bl-lg-5" />
@@ -92,10 +106,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
       <div class="col-lg-8">
         <div class="card-body py-5 px-md-5">
 
-          <form method='POST'>
+          <form method="POST">
          <div class="form-group">
         <label for="Email">Email <span style="color:red">*</span></label>
-        <input type="text" class="form-control" id="Email" name="Email" value="<?php echo htmlspecialchars($Email1) ?>" required>
+        <input type="text" class="form-control" id="Email" name="Email2" value="<?php $id ?>" required>
         <?php if ($EmailErr) {
           echo $EmailErr;
         }
@@ -103,7 +117,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
       </div>
      
             <div data-mdb-input-init class="form-outline mb-4">
-              <input type="password" id="form2Example2" class="form-control" required/>
+              <input type="password" id="form2Example2" class="form-control" name="password"  required/>
               <label class="form-label" for="form2Example2">Password</label>
             </div>
 
@@ -122,10 +136,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <a href="#!">Forgot password?</a>
               </div>
             </div>
-<a href="todo.php">
-    <button type="submit" class="btn btn-primary">Submit</button>
-    </a>     
-
+   <button type="submit"  id = 'submit' name="submit"  class='btn btn-success btn-sm' >login</button>
           </form>
 
         </div>
